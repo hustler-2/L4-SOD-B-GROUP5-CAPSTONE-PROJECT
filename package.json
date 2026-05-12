@@ -1,0 +1,21 @@
+{
+  "name": "l4-sod-b-group5-capstone-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hustler-2/L4-SOD-B-GROUP5-CAPSTONE-PROJECT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hustler-2/L4-SOD-B-GROUP5-CAPSTONE-PROJECT/issues"
+  },
+  "homepage": "https://github.com/hustler-2/L4-SOD-B-GROUP5-CAPSTONE-PROJECT#readme"
+}

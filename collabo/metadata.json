@@ -1,0 +1,6 @@
+{
+  "name": "Greenroot",
+  "description": "A modern, eco-friendly web platform for real-time bus tracking and smart booking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

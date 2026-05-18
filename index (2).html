@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Route — Kigali Bus Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root{--gr-dark:#0a1a0f;--gr-green:#1a7a3c;--gr-lime:#7ec94a;--gr-white:#ffffff;--radius:12px;--radius-lg:20px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--gr-dark);color:var(--gr-white);min-height:100vh;overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,26,15,0.93);backdrop-filter:blur(20px);border-bottom:1px solid rgba(126,201,74,0.15);padding:0 1.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gr-lime);display:flex;align-items:center;gap:9px;letter-spacing:-0.5px;flex-shrink:0;}
+.logo-icon{width:34px;height:34px;background:var(--gr-lime);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+nav ul{list-style:none;display:flex;gap:1.4rem;align-items:center;}
+nav ul li a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+nav ul li a:hover{color:var(--gr-lime);}
+.nav-book-btn{background:var(--gr-lime)!important;color:var(--gr-dark)!important;font-weight:600!important;padding:7px 16px;border-radius:7px;}
+.lang-toggle{display:flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(126,201,74,0.2);border-radius:7px;overflow:hidden;flex-shrink:0;}
+.lang-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:600;padding:6px 13px;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;}
+.lang-btn.active{background:var(--gr-lime);color:var(--gr-dark);}
+
+.hero{min-height:100vh;background:radial-gradient(ellipse at 20% 50%,rgba(30,122,60,0.25) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(126,201,74,0.1) 0%,transparent 50%),var(--gr-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 2rem 3rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(126,201,74,0.03) 60px,rgba(126,201,74,0.03) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(126,201,74,0.03) 60px,rgba(126,201,74,0.03) 61px);pointer-events:none;}
+.hero-badge{background:rgba(126,201,74,0.12);border:1px solid rgba(126,201,74,0.3);color:var(--gr-lime);font-size:0.75rem;font-weight:500;padding:5px 15px;border-radius:100px;margin-bottom:1.4rem;letter-spacing:0.5px;text-transform:uppercase;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,6vw,4.6rem);font-weight:800;text-align:center;line-height:1.06;letter-spacing:-2px;margin-bottom:1rem;max-width:760px;}
+.hero h1 span{color:var(--gr-lime);}
+.hero p{color:rgba(255,255,255,0.5);font-size:0.98rem;text-align:center;max-width:500px;line-height:1.7;margin-bottom:2.8rem;}
+
+.search-box{background:rgba(255,255,255,0.04);border:1px solid rgba(126,201,74,0.2);border-radius:var(--radius-lg);padding:1.6rem 1.8rem;width:100%;max-width:860px;backdrop-filter:blur(10px);}
+.search-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end;}
+.field label{display:block;font-size:0.71rem;font-weight:500;color:var(--gr-lime);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.45rem;}
+.field input,.field select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:11px 13px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus{border-color:var(--gr-lime);}
+.field select option{background:#0a1a0f;color:#fff;}
+.search-btn{background:var(--gr-lime);color:var(--gr-dark);border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;padding:12px 24px;cursor:pointer;white-space:nowrap;transition:transform 0.15s,box-shadow 0.15s;}
+.search-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(126,201,74,0.35);}
+
+.section{padding:3rem 2rem;max-width:1200px;margin:0 auto;}
+.section-title{font-family:'Syne',sans-serif;font-size:1.65rem;font-weight:700;margin-bottom:0.4rem;}
+.section-sub{color:rgba(255,255,255,0.4);font-size:0.86rem;margin-bottom:1.8rem;}
+
+.routes-grid{display:flex;flex-direction:column;gap:0.9rem;}
+.route-card{background:rgba(255,255,255,0.03);border:1px solid rgba(126,201,74,0.15);border-radius:var(--radius-lg);padding:1.3rem 1.7rem;display:grid;grid-template-columns:1fr auto 1fr auto auto;gap:1.2rem;align-items:center;transition:border-color 0.2s,background 0.2s;cursor:pointer;}
+.route-card:hover,.route-card.active{border-color:var(--gr-lime);background:rgba(126,201,74,0.05);}
+.city-name{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:2px;}
+.city-time{color:var(--gr-lime);font-size:0.95rem;font-weight:500;}
+.city-label{font-size:0.76rem;color:rgba(255,255,255,0.4);margin-top:2px;}
+.route-arrow{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.route-arrow .dur{font-size:0.73rem;color:rgba(255,255,255,0.4);}
+.arrow-line{display:flex;align-items:center;gap:5px;color:var(--gr-lime);}
+.arrow-line .line{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gr-lime),transparent);}
+.bus-type{font-size:0.76rem;font-weight:500;background:rgba(126,201,74,0.15);color:var(--gr-lime);padding:2px 9px;border-radius:100px;display:inline-block;margin-bottom:4px;}
+.seats-left{font-size:0.78rem;color:rgba(255,255,255,0.45);}
+.route-price .price{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--gr-lime);}
+.route-price .per{font-size:0.73rem;color:rgba(255,255,255,0.4);}
+.select-btn{background:var(--gr-lime);color:var(--gr-dark);border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.81rem;font-weight:700;padding:9px 16px;cursor:pointer;transition:transform 0.15s;}
+.select-btn:hover{transform:scale(1.04);}
+
+.booking-panel{background:rgba(255,255,255,0.02);border:1px solid rgba(126,201,74,0.18);border-radius:var(--radius-lg);padding:2rem;margin-top:1.8rem;display:none;}
+.booking-panel.show{display:block;}
+.booking-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;}
+
+.seat-map-title{font-family:'Syne',sans-serif;font-size:0.97rem;font-weight:700;margin-bottom:1.1rem;display:flex;align-items:center;gap:9px;}
+.seat-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.6);}
+.legend-dot{width:13px;height:13px;border-radius:3px;}
+.bus-front{background:rgba(126,201,74,0.1);border:1px solid rgba(126,201,74,0.3);border-radius:9px 9px 3px 3px;padding:6px;text-align:center;font-size:0.71rem;color:var(--gr-lime);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.bus-body{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:3px 3px 9px 9px;padding:0.9rem;}
+.seat-row{display:flex;align-items:center;gap:5px;margin-bottom:7px;}
+.seat-row-num{font-size:0.66rem;color:rgba(255,255,255,0.23);width:17px;text-align:right;flex-shrink:0;}
+.aisle{width:16px;flex-shrink:0;}
+.seat{width:35px;height:33px;border-radius:5px 5px 3px 3px;display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:600;cursor:pointer;position:relative;transition:transform 0.1s;border:none;flex-shrink:0;}
+.seat::before{content:'';position:absolute;top:-3px;left:7px;right:7px;height:4px;border-radius:3px 3px 0 0;background:inherit;opacity:0.55;}
+.seat.available{background:#c8f5d8;color:#1a7a3c;}
+.seat.available:hover{transform:scale(1.1);}
+.seat.taken{background:#e0e0e0;color:#999;cursor:not-allowed;}
+.seat.selected{background:#1a7a3c;color:#fff;}
+.seat.premium{background:#fef3c7;color:#92400e;}
+.seat.premium.selected{background:#d97706;color:#fff;}
+
+.ticket-summary{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius);padding:1.4rem;}
+.ticket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+.ticket-logo{font-family:'Syne',sans-serif;font-size:0.97rem;font-weight:800;color:var(--gr-lime);}
+.ticket-route-display{display:flex;align-items:center;gap:11px;margin-bottom:1.3rem;}
+.trd-city{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;}
+.trd-city .sub{font-size:0.7rem;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-weight:400;display:block;}
+.trd-arrow{font-size:1rem;color:var(--gr-lime);}
+.ticket-details{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;margin-bottom:1.3rem;}
+.td-item label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.7px;color:rgba(255,255,255,0.33);display:block;margin-bottom:2px;}
+.td-item .val{font-size:0.9rem;font-weight:500;color:#fff;}
+.td-item .val.lime{color:var(--gr-lime);}
+.timer-display{background:rgba(126,201,74,0.09);border:1px solid rgba(126,201,74,0.22);border-radius:9px;padding:0.9rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
+.timer-label{font-size:0.73rem;color:rgba(255,255,255,0.45);}
+.timer-value{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:var(--gr-lime);font-variant-numeric:tabular-nums;}
+.confirm-btn{width:100%;background:var(--gr-lime);color:var(--gr-dark);border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;padding:13px;cursor:pointer;transition:transform 0.15s,box-shadow 0.2s;}
+.confirm-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(126,201,74,0.35);}
+.confirm-btn:disabled{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.28);cursor:not-allowed;transform:none;box-shadow:none;}
+
+.tracker-section{background:rgba(255,255,255,0.02);border:1px solid rgba(126,201,74,0.14);border-radius:var(--radius-lg);padding:1.8rem;margin-top:1.8rem;display:none;}
+.tracker-section.show{display:block;}
+.tracker-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(220,50,50,0.14);border:1px solid rgba(220,50,50,0.28);color:#ff6b6b;font-size:0.71rem;font-weight:600;padding:3px 11px;border-radius:100px;}
+.live-dot{width:6px;height:6px;background:#ff6b6b;border-radius:50%;animation:pulse-r 1.2s ease-in-out infinite;}
+@keyframes pulse-r{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.35;transform:scale(0.75);}}
+
+.map-container{background:#091508;border:1px solid rgba(126,201,74,0.1);border-radius:var(--radius);height:340px;overflow:hidden;margin-bottom:1.4rem;}
+.map-svg{width:100%;height:100%;}
+
+.journey-timeline{display:flex;align-items:center;padding:0 0.5rem;overflow-x:auto;padding-bottom:4px;gap:0;}
+.jt-stop{text-align:center;flex:0;}
+.jt-stop .sn{font-size:0.73rem;font-weight:600;margin-bottom:3px;white-space:nowrap;}
+.jt-stop .st{font-size:0.68rem;color:var(--gr-lime);}
+.jt-stop .sd{width:11px;height:11px;border-radius:50%;background:var(--gr-lime);border:2px solid var(--gr-dark);margin:4px auto;}
+.jt-stop .sd.current{width:15px;height:15px;background:#ff6b6b;box-shadow:0 0 9px rgba(255,107,107,0.55);animation:pulse-r 1.2s infinite;}
+.jt-stop .sd.passed{background:rgba(126,201,74,0.38);}
+.jt-line{flex:1;height:2px;background:rgba(126,201,74,0.18);min-width:20px;}
+.jt-line.passed{background:rgba(126,201,74,0.48);}
+.jt-line.cur{background:linear-gradient(90deg,rgba(126,201,74,0.48),rgba(255,107,107,0.48));}
+
+.info-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem;margin-top:1.4rem;}
+.info-chip{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:11px 13px;}
+.chip-label{font-size:0.68rem;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.chip-val{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.83);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#0d1e12;border:1px solid rgba(126,201,74,0.28);border-radius:22px;padding:2.3rem;max-width:460px;width:90%;text-align:center;animation:min 0.3s ease-out;}
+@keyframes min{from{opacity:0;transform:scale(0.9) translateY(18px);}to{opacity:1;transform:none;}}
+.modal-icon{width:66px;height:66px;background:var(--gr-lime);border-radius:50%;margin:0 auto 1.3rem;display:flex;align-items:center;justify-content:center;}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:800;margin-bottom:0.4rem;}
+.modal p{color:rgba(255,255,255,0.48);margin-bottom:1.6rem;font-size:0.86rem;line-height:1.6;}
+.modal-ticket{background:rgba(255,255,255,0.04);border:1px dashed rgba(126,201,74,0.28);border-radius:11px;padding:1.1rem;margin-bottom:1.3rem;text-align:left;}
+.mtr{display:flex;justify-content:space-between;font-size:0.81rem;padding:3px 0;}
+.mtr span:first-child{color:rgba(255,255,255,0.38);}
+.mtr span:last-child{font-weight:500;}
+.modal-close-btn{background:var(--gr-lime);color:var(--gr-dark);border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;padding:12px;cursor:pointer;width:100%;}
+
+footer{border-top:1px solid rgba(126,201,74,0.07);padding:1.8rem 2rem;text-align:center;color:rgba(255,255,255,0.18);font-size:0.78rem;line-height:1.7;}
+
+@media(max-width:900px){.search-row{grid-template-columns:1fr 1fr;}.booking-grid{grid-template-columns:1fr;}.info-bar{grid-template-columns:1fr 1fr;}.route-card{grid-template-columns:1fr 1fr;gap:0.8rem;}}
+@media(max-width:620px){.search-row{grid-template-columns:1fr;}.route-card{grid-template-columns:1fr;}.nav ul{display:none;}.lang-toggle{margin-left:auto;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">🚌</div>
+    Green Route
+  </div>
+  <ul>
+    <li><a href="#" data-key="nav_home">Home</a></li>
+    <li><a href="#" data-key="nav_routes">Routes</a></li>
+    <li><a href="#" data-key="nav_track">Track Bus</a></li>
+    <li><a href="#" class="nav-book-btn" data-key="nav_book">Book Now</a></li>
+  </ul>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('rw')">RW</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge" data-key="hero_badge">🌿 Kigali City Bus Network</div>
+  <h1 id="hero_h1_el">Move Around <span>Kigali</span><br>The Smart Way</h1>
+  <p data-key="hero_p">Book your seat on any Kigali city bus, pick your seat like on a plane, and track your bus live on the map.</p>
+  <div class="search-box">
+    <div class="search-row">
+      <div class="field">
+        <label data-key="lbl_from">From</label>
+        <select id="fromCity">
+          <option value="KBC">Kacyiru</option>
+          <option value="NYB">Nyabugogo</option>
+          <option value="REM">Remera</option>
+          <option value="KIM">Kimironko</option>
+          <option value="GIS">Gisozi</option>
+          <option value="KYB">Kiyovu</option>
+          <option value="NDA">Nduba</option>
+          <option value="MUS">Gatsata</option>
+        </select>
+      </div>
+      <div class="field">
+        <label data-key="lbl_to">To</label>
+        <select id="toCity">
+          <option value="NYB">Nyabugogo</option>
+          <option value="KBC">Kacyiru</option>
+          <option value="REM">Remera</option>
+          <option value="KIM">Kimironko</option>
+          <option value="GIS">Gisozi</option>
+          <option value="KYB">Kiyovu</option>
+          <option value="NDA">Nduba</option>
+          <option value="MUS">Gatsata</option>
+        </select>
+      </div>
+      <div class="field">
+        <label data-key="lbl_date">Date</label>
+        <input type="date" id="travelDate">
+      </div>
+      <button class="search-btn" onclick="searchRoutes()" data-key="btn_search">Search Routes</button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<div class="section" id="resultsSection" style="display:none">
+  <div class="section-title" data-key="res_title">Available Routes</div>
+  <div class="section-sub" id="routeSubtitle"></div>
+  <div class="routes-grid" id="routesGrid"></div>
+
+  <!-- BOOKING PANEL -->
+  <div class="booking-panel" id="bookingPanel">
+    <div class="booking-grid">
+      <div>
+        <div class="seat-map-title">
+          🪑 <span data-key="seat_title">Select Your Seats</span>
+        </div>
+        <div class="seat-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#c8f5d8"></div><span data-key="leg_avail">Available</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e0e0e0"></div><span data-key="leg_taken">Taken</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1a7a3c"></div><span data-key="leg_sel">Selected</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fef3c7"></div><span data-key="leg_prem">Priority</span></div>
+        </div>
+        <div class="bus-front" data-key="bus_front">🚌 Driver / Front</div>
+        <div class="bus-body" id="seatMap"></div>
+      </div>
+      <div>
+        <div class="ticket-summary">
+          <div class="ticket-header">
+            <div class="ticket-logo">Green Route · Kigali</div>
+            <div id="barcode" style="display:flex;gap:1px;align-items:center;"></div>
+          </div>
+          <div class="ticket-route-display">
+            <div class="trd-city"><span id="fromCityCode">—</span><span class="sub" id="fromCityName"></span></div>
+            <div class="trd-arrow">→</div>
+            <div class="trd-city"><span id="toCityCode">—</span><span class="sub" id="toCityName"></span></div>
+          </div>
+          <div class="ticket-details">
+            <div class="td-item"><label data-key="td_dept">Departure</label><div class="val lime" id="deptTime">—</div></div>
+            <div class="td-item"><label data-key="td_arr">Arrival</label><div class="val lime" id="arrTime">—</div></div>
+            <div class="td-item"><label data-key="td_date">Date</label><div class="val" id="tripDate">—</div></div>
+            <div class="td-item"><label data-key="td_seats">Seats</label><div class="val" id="selectedSeatsDisplay">—</div></div>
+            <div class="td-item"><label data-key="td_bus">Bus No.</label><div class="val" id="busName">—</div></div>
+            <div class="td-item"><label data-key="td_stops">Stops</label><div class="val" id="busStops" style="font-size:0.78rem;">—</div></div>
+          </div>
+          <div class="timer-display">
+            <div>
+              <div class="timer-label" data-key="timer_label">Time until departure</div>
+              <div class="timer-value" id="countdownTimer">--:--:--</div>
+            </div>
+            <span style="font-size:1.6rem;">⏱</span>
+          </div>
+          <div class="td-item" style="margin-bottom:1rem;">
+            <label data-key="td_total">Total Price</label>
+            <div class="val lime" style="font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800" id="totalPrice">RWF 0</div>
+          </div>
+          <button class="confirm-btn" id="confirmBtn" onclick="confirmBooking()" disabled data-key="btn_confirm">Select seats to continue →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKER -->
+  <div class="tracker-section" id="trackerSection">
+    <div class="tracker-header">
+      <div>
+        <div class="section-title" style="font-size:1.15rem" data-key="tracker_title">Live Bus Tracker — Kigali</div>
+        <div style="font-size:0.81rem;color:rgba(255,255,255,0.38);margin-top:2px" id="trackerSub"></div>
+      </div>
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    </div>
+
+    <div class="map-container">
+      <svg class="map-svg" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg">
+        <rect width="800" height="340" fill="#091508"/>
+        <!-- Grid lines -->
+        <line x1="0" y1="85" x2="800" y2="85" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <line x1="0" y1="170" x2="800" y2="170" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <line x1="0" y1="255" x2="800" y2="255" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <line x1="200" y1="0" x2="200" y2="340" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <line x1="400" y1="0" x2="400" y2="340" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <line x1="600" y1="0" x2="600" y2="340" stroke="rgba(126,201,74,0.04)" stroke-width="1"/>
+        <!-- Kigali road network -->
+        <path d="M 50 170 Q 220 155 400 168 Q 570 180 750 162" stroke="rgba(126,201,74,0.16)" stroke-width="4" fill="none"/>
+        <path d="M 400 40 Q 392 170 400 310" stroke="rgba(126,201,74,0.12)" stroke-width="3" fill="none"/>
+        <path d="M 110 285 Q 220 225 310 170" stroke="rgba(126,201,74,0.12)" stroke-width="2.5" fill="none"/>
+        <path d="M 595 88 Q 560 130 545 168" stroke="rgba(126,201,74,0.11)" stroke-width="2" fill="none"/>
+        <path d="M 310 170 Q 272 118 225 78" stroke="rgba(126,201,74,0.11)" stroke-width="2" fill="none"/>
+        <path d="M 400 168 Q 430 222 425 282" stroke="rgba(126,201,74,0.1)" stroke-width="2" fill="none"/>
+        <path d="M 100 58 Q 170 100 225 78" stroke="rgba(126,201,74,0.09)" stroke-width="2" fill="none"/>
+        <path d="M 545 168 Q 640 165 750 162" stroke="rgba(126,201,74,0.1)" stroke-width="2" fill="none"/>
+        <!-- Active route highlight -->
+        <path id="activeRoute" d="" stroke="rgba(126,201,74,0.65)" stroke-width="3.5" fill="none" stroke-dasharray="9 4"/>
+        <!-- Stop markers -->
+        <circle id="dot_KBC" cx="400" cy="168" r="7" fill="#7ec94a" opacity="0.92"/>
+        <circle id="dot_NYB" cx="110" cy="285" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_REM" cx="545" cy="168" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_KIM" cx="595" cy="88" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_GIS" cx="225" cy="78" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_KYB" cx="425" cy="282" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_NDA" cx="100" cy="58" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <circle id="dot_MUS" cx="750" cy="162" r="7" fill="rgba(126,201,74,0.5)" stroke="#7ec94a" stroke-width="1.5"/>
+        <!-- Labels -->
+        <text x="408" y="162" fill="rgba(255,255,255,0.82)" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">Kacyiru</text>
+        <text x="68" y="299" fill="rgba(255,255,255,0.68)" font-family="DM Sans,sans-serif" font-size="11">Nyabugogo</text>
+        <text x="553" y="163" fill="rgba(255,255,255,0.68)" font-family="DM Sans,sans-serif" font-size="11">Remera</text>
+        <text x="603" y="85" fill="rgba(255,255,255,0.68)" font-family="DM Sans,sans-serif" font-size="11">Kimironko</text>
+        <text x="232" y="73" fill="rgba(255,255,255,0.68)" font-family="DM Sans,sans-serif" font-size="11">Gisozi</text>
+        <text x="432" y="298" fill="rgba(255,255,255,0.68)" font-family="DM Sans,sans-serif" font-size="11">Kiyovu</text>
+        <text x="108" y="52" fill="rgba(255,255,255,0.65)" font-family="DM Sans,sans-serif" font-size="11">Nduba</text>
+        <text x="692" y="157" fill="rgba(255,255,255,0.65)" font-family="DM Sans,sans-serif" font-size="11">Gatsata</text>
+        <!-- Compass -->
+        <text x="762" y="24" fill="rgba(126,201,74,0.55)" font-family="DM Sans,sans-serif" font-size="13" font-weight="700">N↑</text>
+        <text x="740" y="19" fill="rgba(255,255,255,0.18)" font-family="DM Sans,sans-serif" font-size="9">KIGALI</text>
+        <!-- Bus marker -->
+        <g id="busMarker" transform="translate(400,168)">
+          <circle r="16" fill="rgba(255,107,107,0.16)" cx="0" cy="0"><animate attributeName="r" values="16;24;16" dur="1.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.08;0.5" dur="1.7s" repeatCount="indefinite"/></circle>
+          <circle r="10" fill="#ff6b6b" cx="0" cy="0" opacity="0.93"/>
+          <text x="0" y="4" text-anchor="middle" fill="white" font-size="9" font-family="DM Sans,sans-serif" font-weight="700">🚌</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="journey-timeline" id="journeyTimeline"></div>
+
+    <div class="info-bar">
+      <div class="info-chip"><div class="chip-label" data-key="chip_speed">Speed</div><div class="chip-val" id="speedVal" style="color:#7ec94a">32 km/h</div></div>
+      <div class="info-chip"><div class="chip-label" data-key="chip_dist">Distance Left</div><div class="chip-val" id="distVal">—</div></div>
+      <div class="info-chip"><div class="chip-label" data-key="chip_arr">Est. Arrival</div><div class="chip-val" style="color:#7ec94a" id="estArr">—</div></div>
+      <div class="info-chip"><div class="chip-label" data-key="chip_pass">Passengers</div><div class="chip-val" id="passCount">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 36 36" fill="none"><path d="M8 18l7 7 13-13" stroke="#0a1a0f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 data-key="modal_title">Booking Confirmed!</h2>
+    <p data-key="modal_sub">Your ticket is ready. Show your booking code at the stage or to the driver.</p>
+    <div class="modal-ticket">
+      <div class="mtr"><span data-key="m_code">Booking Code</span><span style="color:#7ec94a;font-family:'Syne',sans-serif;font-weight:800" id="bookingCode">GR-XXXXXX</span></div>
+      <div class="mtr"><span data-key="m_route">Route</span><span id="modalRoute">—</span></div>
+      <div class="mtr"><span data-key="m_date">Date</span><span id="modalDate">—</span></div>
+      <div class="mtr"><span data-key="m_seats">Seats</span><span id="modalSeats">—</span></div>
+      <div class="mtr"><span data-key="m_dept">Departure</span><span style="color:#7ec94a" id="modalDept">—</span></div>
+      <div class="mtr"><span data-key="m_total">Total Paid</span><span style="color:#7ec94a" id="modalTotal">—</span></div>
+    </div>
+    <button class="modal-close-btn" onclick="closeModal()" data-key="modal_btn">Track My Bus →</button>
+  </div>
+</div>
+
+<footer>
+  © 2024 Green Route Ltd · Kigali City Bus Network<br>
+  <span style="color:rgba(126,201,74,0.4)">Imodoka y'Umuryango wa Green Route · Umuyoboro wa Bisi i Kigali · Rwanda</span>
+</footer>
+
+<script>
+// ══════ TRANSLATIONS ══════
+const T={
+  en:{
+    nav_home:'Home',nav_routes:'Routes',nav_track:'Track Bus',nav_book:'Book Now',
+    hero_badge:'🌿 Kigali City Bus Network',
+    hero_h1:'Move Around <span>Kigali</span><br>The Smart Way',
+    hero_p:'Book your seat on any Kigali city bus, pick your seat like on a plane, and track your bus live on the map.',
+    lbl_from:'From',lbl_to:'To',lbl_date:'Date',
+    btn_search:'Search Routes',res_title:'Available Routes',
+    seat_title:'Select Your Seats',
+    leg_avail:'Available',leg_taken:'Taken',leg_sel:'Selected',leg_prem:'Priority',
+    bus_front:'🚌 Driver / Front',
+    td_dept:'Departure',td_arr:'Arrival',td_date:'Date',td_seats:'Seats',td_bus:'Bus No.',td_stops:'Stops',
+    timer_label:'Time until departure',td_total:'Total Price',
+    btn_confirm:'Select seats to continue →',
+    btn_confirm_n:(n)=>`Confirm ${n} seat${n>1?'s':''} →`,
+    none_sel:'None selected',departed:'DEPARTED',
+    tracker_title:'Live Bus Tracker — Kigali',
+    chip_speed:'Speed',chip_dist:'Distance Left',chip_arr:'Est. Arrival',chip_pass:'Passengers',
+    modal_title:'Booking Confirmed!',
+    modal_sub:'Your ticket is ready. Show your booking code at the stage or to the driver.',
+    m_code:'Booking Code',m_route:'Route',m_date:'Date',m_seats:'Seats',m_dept:'Departure',m_total:'Total Paid',
+    modal_btn:'Track My Bus →',
+    per_person:'per person',
+    seats_left:(n)=>`${n} seats left`,
+    showing:(f,t)=>`Showing routes: ${f} → ${t}`,
+    arrived:'Arrived',no_routes:'No routes found. Try a different origin or destination.',select:'Select',
+  },
+  rw:{
+    nav_home:'Ahabanza',nav_routes:'Inzira',nav_track:'Kurikira Bisi',nav_book:'Buka Ubu',
+    hero_badge:'🌿 Umuyoboro wa Bisi i Kigali',
+    hero_h1:'Geenda mu <span>Kigali</span><br>Neza no Byihuse',
+    hero_p:'Buka icyicaro cya bisi iyo ari yo yose i Kigali, hitamo icyicaro nk\'ikirere, ukurikirane bisi yawe kuri mapu.',
+    lbl_from:'Kuva',lbl_to:'Ujya',lbl_date:'Itariki',
+    btn_search:'Shakisha Inzira',res_title:'Inzira Zihari',
+    seat_title:'Hitamo Icyicaro Cyawe',
+    leg_avail:'Bihari',leg_taken:'Byafashwe',leg_sel:'Wahisemo',leg_prem:'Intandaro',
+    bus_front:'🚌 Shoferi / Imbere',
+    td_dept:'Amasaha y\'Iguruka',td_arr:'Amasaha y\'Ubugera',td_date:'Itariki',td_seats:'Ibyicaro',td_bus:'Nimero ya Bisi',td_stops:'Inzira Inyura',
+    timer_label:'Igihe gisigaye mbere y\'iguruka',td_total:'Ikiguzi Cyose',
+    btn_confirm:'Hitamo ibyicaro mbere →',
+    btn_confirm_n:(n)=>`Emeza ibyicaro ${n} →`,
+    none_sel:'Nta cyicaro wahisemo',departed:'YAGIYE',
+    tracker_title:'Gukurikirana Bisi — Kigali',
+    chip_speed:'Intera',chip_dist:'Intera Isigaye',chip_arr:'Amasaha y\'Ubugera',chip_pass:'Abagenzi',
+    modal_title:'Ugutira Kwemejwe!',
+    modal_sub:'Tiketi yawe iri hano. Erekana kode yawe kuri sitasiyo cyangwa ugaragarize shoferi.',
+    m_code:'Kode yo Gutira',m_route:'Inzira',m_date:'Itariki',m_seats:'Ibyicaro',m_dept:'Amasaha yo Kugenda',m_total:'Byishyuwe Byose',
+    modal_btn:'Kurikira Bisi Yanjye →',
+    per_person:'ku muntu',
+    seats_left:(n)=>`Ibyicaro ${n} bisigaye`,
+    showing:(f,to)=>`Inzira: ${f} → ${to}`,
+    arrived:'Yarageze',no_routes:'Nta nzira zabonetse. Gerageza ahandi.',select:'Hitamo',
+  }
+};
+let lang='en';
+function t(k,...a){const fn=T[lang][k];return typeof fn==='function'?fn(...a):(fn||k);}
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim().toLowerCase()===l));
+  document.querySelectorAll('[data-key]').forEach(el=>{
+    const k=el.dataset.key;
+    if(T[lang][k]!==undefined) el.textContent=T[lang][k];
+  });
+  // hero h1 has HTML
+  document.getElementById('hero_h1_el').innerHTML=T[lang]['hero_h1'];
+  if(window._foundRoutes)renderCards(window._foundRoutes);
+  updateTicket();
+}
+
+// ══════ DATA — KIGALI NEIGHBORHOODS ══════
+const cities={KBC:'Kacyiru',NYB:'Nyabugogo',REM:'Remera',KIM:'Kimironko',GIS:'Gisozi',KYB:'Kiyovu',NDA:'Nduba',MUS:'Gatsata'};
+const mapPos={KBC:{x:400,y:168},NYB:{x:110,y:285},REM:{x:545,y:168},KIM:{x:595,y:88},GIS:{x:225,y:78},KYB:{x:425,y:282},NDA:{x:100,y:58},MUS:{x:750,y:162}};
+
+const routes=[
+  {from:'KBC',to:'NYB',depart:'06:00',arrive:'06:40',price:500,bus:'KGL-001',stops:['KBC','KYB','NYB'],dist:8,pax:38},
+  {from:'KBC',to:'NYB',depart:'07:30',arrive:'08:15',price:500,bus:'KGL-002',stops:['KBC','KYB','NYB'],dist:8,pax:22},
+  {from:'KBC',to:'NYB',depart:'12:00',arrive:'12:45',price:500,bus:'KGL-003',stops:['KBC','KYB','NYB'],dist:8,pax:45},
+  {from:'NYB',to:'KBC',depart:'06:30',arrive:'07:10',price:500,bus:'KGL-004',stops:['NYB','KYB','KBC'],dist:8,pax:30},
+  {from:'NYB',to:'KBC',depart:'08:00',arrive:'08:45',price:500,bus:'KGL-005',stops:['NYB','KYB','KBC'],dist:8,pax:18},
+  {from:'KBC',to:'REM',depart:'07:00',arrive:'07:35',price:400,bus:'KGL-010',stops:['KBC','REM'],dist:6,pax:27},
+  {from:'REM',to:'KBC',depart:'07:45',arrive:'08:20',price:400,bus:'KGL-011',stops:['REM','KBC'],dist:6,pax:33},
+  {from:'KBC',to:'KIM',depart:'07:15',arrive:'08:05',price:500,bus:'KGL-020',stops:['KBC','REM','KIM'],dist:9,pax:20},
+  {from:'KIM',to:'KBC',depart:'06:45',arrive:'07:35',price:500,bus:'KGL-021',stops:['KIM','REM','KBC'],dist:9,pax:42},
+  {from:'KIM',to:'NYB',depart:'08:30',arrive:'09:30',price:600,bus:'KGL-022',stops:['KIM','REM','KBC','NYB'],dist:14,pax:35},
+  {from:'NYB',to:'KIM',depart:'09:00',arrive:'10:00',price:600,bus:'KGL-023',stops:['NYB','KBC','REM','KIM'],dist:14,pax:12},
+  {from:'GIS',to:'KBC',depart:'07:00',arrive:'07:30',price:400,bus:'KGL-030',stops:['GIS','KBC'],dist:5,pax:29},
+  {from:'KBC',to:'GIS',depart:'08:00',arrive:'08:30',price:400,bus:'KGL-031',stops:['KBC','GIS'],dist:5,pax:16},
+  {from:'NDA',to:'NYB',depart:'06:15',arrive:'07:05',price:500,bus:'KGL-040',stops:['NDA','GIS','KBC','NYB'],dist:11,pax:44},
+  {from:'NYB',to:'NDA',depart:'07:30',arrive:'08:20',price:500,bus:'KGL-041',stops:['NYB','KBC','GIS','NDA'],dist:11,pax:8},
+  {from:'MUS',to:'KBC',depart:'07:00',arrive:'07:55',price:500,bus:'KGL-050',stops:['MUS','REM','KBC'],dist:10,pax:36},
+  {from:'KBC',to:'MUS',depart:'08:30',arrive:'09:25',price:500,bus:'KGL-051',stops:['KBC','REM','MUS'],dist:10,pax:21},
+  {from:'KYB',to:'KIM',depart:'08:00',arrive:'09:05',price:600,bus:'KGL-060',stops:['KYB','KBC','REM','KIM'],dist:13,pax:17},
+  {from:'KIM',to:'KYB',depart:'09:30',arrive:'10:35',price:600,bus:'KGL-061',stops:['KIM','REM','KBC','KYB'],dist:13,pax:28},
+  {from:'GIS',to:'KIM',depart:'09:00',arrive:'09:50',price:500,bus:'KGL-070',stops:['GIS','KBC','REM','KIM'],dist:10,pax:14},
+  {from:'KYB',to:'NYB',depart:'07:00',arrive:'07:35',price:400,bus:'KGL-080',stops:['KYB','NYB'],dist:5,pax:40},
+];
+
+let selRoute=null,selSeats=[],timerInt=null,busAnim=null;
+
+// ══════ SEARCH ══════
+function searchRoutes(){
+  const f=document.getElementById('fromCity').value,t2=document.getElementById('toCity').value;
+  if(f===t2){alert(lang==='rw'?'Hitamo aho gutandukanye!':'Please choose different stops.');return;}
+  const found=routes.filter(r=>r.from===f&&r.to===t2);
+  window._foundRoutes=found;window._fc=f;window._tc=t2;
+  const sec=document.getElementById('resultsSection');
+  sec.style.display='block';
+  document.getElementById('routeSubtitle').textContent=t('showing',cities[f],cities[t2]);
+  sec.scrollIntoView({behavior:'smooth'});
+  renderCards(found);
+  document.getElementById('bookingPanel').classList.remove('show');
+  document.getElementById('trackerSection').classList.remove('show');
+  selSeats=[];
+}
+
+function renderCards(found){
+  const g=document.getElementById('routesGrid');
+  if(!found||!found.length){g.innerHTML=`<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.38)">${t('no_routes')}</div>`;return;}
+  const dur=(r)=>{const[dh,dm]=r.depart.split(':').map(Number),[ah,am]=r.arrive.split(':').map(Number);const mn=(ah*60+am)-(dh*60+dm);return mn>=60?`${Math.floor(mn/60)}h ${mn%60}min`:mn+'min';};
+  g.innerHTML=found.map((r,i)=>`
+  <div class="route-card" id="card-${i}" onclick="selectRoute(${i})">
+    <div><div class="city-name">${cities[r.from]}</div><div class="city-time">${r.depart}</div><div class="city-label">${t('td_dept')}</div></div>
+    <div class="route-arrow"><div class="dur">🚌 ${dur(r)}</div><div class="arrow-line"><div class="line"></div>→<div class="line"></div></div></div>
+    <div><div class="city-name">${cities[r.to]}</div><div class="city-time">${r.arrive}</div><div class="city-label">${t('td_arr')}</div></div>
+    <div><div class="bus-type">${r.bus}</div><div class="seats-left">${t('seats_left',50-r.pax)}</div></div>
+    <div class="route-price"><div class="price">RWF ${r.price.toLocaleString()}</div><div class="per">${t('per_person')}</div></div>
+    <button class="select-btn" onclick="event.stopPropagation();selectRoute(${i})">${t('select')}</button>
+  </div>`).join('');
+}
+
+// ══════ SELECT ROUTE ══════
+function selectRoute(idx){
+  selRoute=window._foundRoutes[idx];selSeats=[];
+  document.querySelectorAll('.route-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  buildSeatMap();updateTicket();
+  const p=document.getElementById('bookingPanel');p.classList.add('show');p.scrollIntoView({behavior:'smooth'});
+  const f=window._fc,t2=window._tc;
+  document.getElementById('fromCityCode').textContent=f;
+  document.getElementById('toCityCode').textContent=t2;
+  document.getElementById('fromCityName').textContent=cities[f];
+  document.getElementById('toCityName').textContent=cities[t2];
+  document.getElementById('deptTime').textContent=selRoute.depart;
+  document.getElementById('arrTime').textContent=selRoute.arrive;
+  document.getElementById('busName').textContent=selRoute.bus;
+  document.getElementById('busStops').textContent=selRoute.stops.map(s=>cities[s]).join(' → ');
+  const dv=document.getElementById('travelDate').value;
+  document.getElementById('tripDate').textContent=dv?new Date(dv+'T00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+  startCountdown();buildBarcode();
+}
+
+// ══════ SEATS ══════
+function buildSeatMap(){
+  const map=document.getElementById('seatMap');map.innerHTML='';
+  for(let r=1;r<=10;r++){
+    const row=document.createElement('div');row.className='seat-row';
+    row.innerHTML=`<span class="seat-row-num">${r}</span>`;
+    ['A','B'].forEach(c=>row.appendChild(mkSeat(r,c)));
+    const a=document.createElement('div');a.className='aisle';row.appendChild(a);
+    ['C','D'].forEach(c=>row.appendChild(mkSeat(r,c)));
+    map.appendChild(row);
+  }
+}
+function mkSeat(r,col){
+  const id=`${r}${col}`,isPrem=r<=2,isTaken=Math.random()<(isPrem?0.48:0.3);
+  const b=document.createElement('button');
+  b.className=`seat ${isTaken?'taken':isPrem?'premium':'available'}`;
+  b.textContent=col;b.dataset.id=id;b.dataset.p=isPrem?'1':'0';
+  if(!isTaken)b.onclick=()=>toggleSeat(b);
+  return b;
+}
+function toggleSeat(b){
+  const id=b.dataset.id,ip=b.dataset.p==='1';
+  if(b.classList.contains('selected')){
+    b.classList.remove('selected');b.classList.add(ip?'premium':'available');
+    selSeats=selSeats.filter(s=>s!==id);
+  } else {
+    b.classList.remove('available','premium');b.classList.add('selected');selSeats.push(id);
+  }
+  updateTicket();
+}
+
+// ══════ TICKET ══════
+function updateTicket(){
+  const d=document.getElementById('selectedSeatsDisplay'),tot=document.getElementById('totalPrice'),btn=document.getElementById('confirmBtn');
+  if(!selRoute)return;
+  if(!selSeats.length){
+    d.textContent=t('none_sel');tot.textContent='RWF 0';
+    btn.disabled=true;btn.textContent=t('btn_confirm');
+  } else {
+    d.textContent=selSeats.join(', ');
+    const cost=selSeats.reduce((a,s)=>a+(parseInt(s)<=2?selRoute.price*1.3:selRoute.price),0);
+    tot.textContent=`RWF ${Math.round(cost).toLocaleString()}`;
+    btn.disabled=false;btn.textContent=t('btn_confirm_n',selSeats.length);
+  }
+}
+
+// ══════ COUNTDOWN ══════
+function startCountdown(){
+  if(timerInt)clearInterval(timerInt);
+  const dv=document.getElementById('travelDate').value;if(!dv||!selRoute)return;
+  const[h,m]=selRoute.depart.split(':').map(Number);
+  const dept=new Date(dv+'T00:00');dept.setHours(h,m,0,0);
+  timerInt=setInterval(()=>{
+    const diff=dept-new Date(),el=document.getElementById('countdownTimer');
+    if(diff<=0){el.textContent=t('departed');clearInterval(timerInt);return;}
+    const hr=Math.floor(diff/3600000),mn=Math.floor((diff%3600000)/60000),sc=Math.floor((diff%60000)/1000);
+    el.textContent=`${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;
+  },1000);
+}
+
+// ══════ BARCODE ══════
+function buildBarcode(){
+  const bc=document.getElementById('barcode');bc.innerHTML='';
+  [3,1,2,1,3,2,1,3,2,1,3,1,2,3,1].forEach(w=>{
+    const s=document.createElement('span');
+    s.style.cssText=`width:${w}px;height:32px;background:rgba(255,255,255,0.13);border-radius:1px;display:inline-block;margin:0 0.5px`;
+    bc.appendChild(s);
+  });
+}
+
+// ══════ CONFIRM ══════
+function confirmBooking(){
+  if(!selSeats.length)return;
+  const code='GR-'+Math.random().toString(36).substring(2,8).toUpperCase();
+  const dv=document.getElementById('travelDate').value;
+  const cost=selSeats.reduce((a,s)=>a+(parseInt(s)<=2?selRoute.price*1.3:selRoute.price),0);
+  document.getElementById('bookingCode').textContent=code;
+  document.getElementById('modalRoute').textContent=`${cities[selRoute.from]} → ${cities[selRoute.to]}`;
+  document.getElementById('modalDate').textContent=dv?new Date(dv+'T00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+  document.getElementById('modalSeats').textContent=selSeats.join(', ');
+  document.getElementById('modalDept').textContent=selRoute.depart;
+  document.getElementById('modalTotal').textContent=`RWF ${Math.round(cost).toLocaleString()}`;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  setupTracker();
+  document.getElementById('trackerSection').classList.add('show');
+  document.getElementById('trackerSection').scrollIntoView({behavior:'smooth'});
+}
+
+// ══════ TRACKER ══════
+function setupTracker(){
+  if(!selRoute)return;
+  const r=selRoute;
+  document.getElementById('trackerSub').textContent=`${r.bus} · ${cities[r.from]} → ${cities[r.to]}`;
+  document.getElementById('estArr').textContent=r.arrive;
+  document.getElementById('passCount').textContent=`${r.pax} / 50`;
+  // Draw route path
+  if(r.stops.length>=2){
+    const d=r.stops.map((s,i)=>`${i===0?'M':'L'} ${mapPos[s].x} ${mapPos[s].y}`).join(' ');
+    document.getElementById('activeRoute').setAttribute('d',d);
+  }
+  // Timeline
+  const tl=document.getElementById('journeyTimeline');tl.innerHTML='';
+  const[dh,dm]=r.depart.split(':').map(Number),[ah,am]=r.arrive.split(':').map(Number);
+  const totalMin=(ah*60+am)-(dh*60+dm);
+  r.stops.forEach((s,i)=>{
+    const frac=i/(r.stops.length-1);
+    const mins=Math.round(dh*60+dm+frac*totalMin);
+    const th=String(Math.floor(mins/60)).padStart(2,'0'),tm=String(mins%60).padStart(2,'0');
+    const passed=i===0,cur=i===1&&r.stops.length>2;
+    const div=document.createElement('div');div.className='jt-stop';
+    div.innerHTML=`<div class="sn">${cities[s]}</div><div class="st">${th}:${tm}</div><div class="sd ${passed?'passed':cur?'current':''}"></div>`;
+    tl.appendChild(div);
+    if(i<r.stops.length-1){const ln=document.createElement('div');ln.className=`jt-line ${passed?'passed':cur?'cur':''}`;tl.appendChild(ln);}
+  });
+  if(busAnim)clearTimeout(busAnim);
+  animBus(r.stops,r.dist);
+}
+
+function animBus(stops,dist){
+  const marker=document.getElementById('busMarker');
+  if(!marker||stops.length<2)return;
+  const wp=[];
+  for(let i=0;i<stops.length-1;i++){
+    const a=mapPos[stops[i]],b=mapPos[stops[i+1]],steps=14;
+    for(let s=0;s<=steps;s++) wp.push({x:a.x+(b.x-a.x)*s/steps,y:a.y+(b.y-a.y)*s/steps});
+  }
+  const speeds=[28,31,35,38,36,33,36,39,34,30,35,37,32,29,33,31,36,35,31,29,26,21,16,11,6,0];
+  let step=Math.floor(wp.length*0.28);
+  function go(){
+    if(step>=wp.length){document.getElementById('speedVal').textContent='0 km/h';document.getElementById('distVal').textContent=t('arrived');return;}
+    const p=wp[step];
+    marker.setAttribute('transform',`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+    const sp=speeds[step%speeds.length]||30;
+    document.getElementById('speedVal').textContent=sp+' km/h';
+    const rem=Math.round(dist*(wp.length-step)/wp.length);
+    document.getElementById('distVal').textContent=rem+' km';
+    step++;busAnim=setTimeout(go,1500);
+  }
+  go();
+}
+
+// ══════ INIT ══════
+window.onload=()=>{
+  const d=new Date();d.setDate(d.getDate()+1);
+  document.getElementById('travelDate').value=d.toISOString().split('T')[0];
+};
+</script>
+</body>
+</html>

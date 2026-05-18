@@ -26,51 +26,52 @@ export function LiveMap({ selectedBus, onSelectBus }: {
   onSelectBus?: (id: string) => void;
 }) {
   const [buses, setBuses] = useState<Bus[]>(BUSES);
-  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    const i = setInterval(() => {
-      setBuses((bs) =>
-        bs.map((b) => {
-          const speed = b.status === "boarding" ? 0 : 0.0012 + b.speed / 60000;
-          let progress = b.progress + speed;
-          if (progress > 1) progress = 0;
-          return { ...b, progress };
-        })
-      );
-      setTick((t) => t + 1);
-    }, 120);
-    return () => clearInterval(i);
+    const fetchGPSData = async () => {
+      try {
+        const res = await fetch("/api/gps");
+        const data = await res.json();
+        if (data && data.buses) {
+          setBuses(data.buses);
+        }
+      } catch (err) {
+        console.error("Failed to fetch real-time GPS tracking telemetry:", err);
+      }
+    };
+
+    fetchGPSData();
+    const interval = setInterval(fetchGPSData, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-2xl bg-card border border-border">
       {/* Realistic map image background styled for premium high-tech dashboard */}
-      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden bg-slate-50">
         <img 
           src={mapBg} 
-          alt="Map texture" 
-          className="w-full h-full object-cover opacity-25 brightness-[0.7] contrast-[1.2] invert" 
+          alt="Kigali Street Map" 
+          className="w-full h-full object-cover opacity-95 brightness-[1.02] contrast-[0.98]" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-background/10" />
       </div>
 
       <svg viewBox="0 0 100 100" className="w-full h-full relative z-10" preserveAspectRatio="none">
-        {/* Routes */}
+        {/* Routes - Styled as thick, clear solid tracks */}
         {ROUTES.map((r) => (
           <path
             key={r.id}
             d={ROUTE_PATHS[r.id]}
             fill="none"
             stroke={r.color}
-            strokeWidth={0.7}
+            strokeWidth={1.4}
             strokeLinecap="round"
-            opacity={0.85}
-            strokeDasharray="0.8 1.2"
+            opacity={0.9}
           />
         ))}
 
-        {/* Stops (junction dots) */}
+        {/* Stops (junction dots with professional cartographic text halos) */}
         {[
           [50, 50, "Downtown"],
           [10, 80, "Nyabugogo"],
@@ -80,9 +81,19 @@ export function LiveMap({ selectedBus, onSelectBus }: {
           [92, 50, "Nyamirambo"],
         ].map(([x, y, label], i) => (
           <g key={i}>
-            <circle cx={x as number} cy={y as number} r={0.9} fill="oklch(0.98 0.01 240)" />
-            <circle cx={x as number} cy={y as number} r={1.6} fill="none" stroke="oklch(0.98 0.01 240 / 0.4)" strokeWidth={0.15} />
-            <text x={(x as number) + 2} y={(y as number) + 1} fontSize={2.2} fill="oklch(0.95 0.01 240 / 0.85)" style={{ fontFamily: "system-ui" }}>
+            <circle cx={x as number} cy={y as number} r={1.0} fill="#0F172A" stroke="#FFFFFF" strokeWidth={0.2} />
+            <circle cx={x as number} cy={y as number} r={1.8} fill="none" stroke="#0F172A" strokeWidth={0.15} opacity={0.3} />
+            <text 
+              x={(x as number) + 2} 
+              y={(y as number) + 0.8} 
+              fontSize={2.5} 
+              fill="#0F172A" 
+              fontWeight="bold"
+              paintOrder="stroke"
+              stroke="#FFFFFF"
+              strokeWidth={0.5}
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
               {label as string}
             </text>
           </g>
@@ -102,7 +113,7 @@ export function LiveMap({ selectedBus, onSelectBus }: {
           const sel = selectedBus === b.id;
           return (
             <button
-              key={b.id + tick * 0}
+              key={b.id}
               onClick={() => onSelectBus?.(b.id)}
               className={`absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto transition-transform ${sel ? "scale-125 z-10" : ""}`}
               style={{ left: `${pt.x}%`, top: `${pt.y}%`, color: route.color }}

@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGpsRouteImport } from './routes/api/gps'
 
 const TicketsRoute = TicketsRouteImport.update({
   id: '/tickets',
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGpsRoute = ApiGpsRouteImport.update({
+  id: '/api/gps',
+  path: '/api/gps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/tickets': typeof TicketsRoute
+  '/api/gps': typeof ApiGpsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/tickets': typeof TicketsRoute
+  '/api/gps': typeof ApiGpsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,29 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/tickets': typeof TicketsRoute
+  '/api/gps': typeof ApiGpsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/book' | '/login' | '/map' | '/tickets'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/book'
+    | '/login'
+    | '/map'
+    | '/tickets'
+    | '/api/gps'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/book' | '/login' | '/map' | '/tickets'
-  id: '__root__' | '/' | '/admin' | '/book' | '/login' | '/map' | '/tickets'
+  to: '/' | '/admin' | '/book' | '/login' | '/map' | '/tickets' | '/api/gps'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/book'
+    | '/login'
+    | '/map'
+    | '/tickets'
+    | '/api/gps'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +111,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   TicketsRoute: typeof TicketsRoute
+  ApiGpsRoute: typeof ApiGpsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -133,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/gps': {
+      id: '/api/gps'
+      path: '/api/gps'
+      fullPath: '/api/gps'
+      preLoaderRoute: typeof ApiGpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -143,6 +175,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   TicketsRoute: TicketsRoute,
+  ApiGpsRoute: ApiGpsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

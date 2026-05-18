@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BUSES, ROUTES, type Bus } from "@/lib/mock-data";
 import { Bus as BusIcon } from "lucide-react";
+import mapBg from "@/assets/live-map-bg.png";
 
 // Animated SVG "Kigali map" — simulated routes & moving buses.
 // Coords are normalized in a 0..100 viewBox.
@@ -43,15 +44,18 @@ export function LiveMap({ selectedBus, onSelectBus }: {
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-2xl bg-card grid-bg">
-      {/* Soft gradient overlays — Kigali "hills" feel */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 20% 80%, oklch(0.55 0.14 155 / 0.18), transparent 50%), radial-gradient(circle at 80% 20%, oklch(0.7 0.16 230 / 0.18), transparent 55%)" }} />
+    <div className="relative w-full h-full overflow-hidden rounded-2xl bg-card border border-border">
+      {/* Realistic map image background styled for premium high-tech dashboard */}
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+        <img 
+          src={mapBg} 
+          alt="Map texture" 
+          className="w-full h-full object-cover opacity-25 brightness-[0.7] contrast-[1.2] invert" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/40" />
+      </div>
 
-      <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
-        {/* Hill silhouettes */}
-        <path d="M 0 88 Q 25 76 50 84 T 100 80 L 100 100 L 0 100 Z" fill="oklch(0.55 0.14 155 / 0.10)" />
-        <path d="M 0 92 Q 30 84 55 90 T 100 88 L 100 100 L 0 100 Z" fill="oklch(0.55 0.14 155 / 0.14)" />
-
+      <svg viewBox="0 0 100 100" className="w-full h-full relative z-10" preserveAspectRatio="none">
         {/* Routes */}
         {ROUTES.map((r) => (
           <path

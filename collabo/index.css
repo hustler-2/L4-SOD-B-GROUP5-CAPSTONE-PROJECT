@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", sans-serif;
+
+  --color-gr-dark: #0a1a0f;
+  --color-gr-green: #1a7a3c;
+  --color-gr-lime: #7ec94a;
+  
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-3xl: 40px;
+}
+
+@layer base {
+  body {
+    @apply bg-gr-dark text-white font-sans antialiased selection:bg-gr-lime selection:text-gr-dark;
+  }
+}
+
+@layer components {
+  .web-container {
+    @apply min-h-screen flex flex-col bg-gr-dark;
+  }
+
+  .content-area {
+    @apply flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .hero-gradient {
+    background: radial-gradient(ellipse at 20% 50%, rgba(30, 122, 60, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(126, 201, 74, 0.1) 0%, transparent 50%),
+                #0a1a0f;
+  }
+  
+  .grid-pattern {
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(126, 201, 74, 0.03) 60px, rgba(126, 201, 74, 0.03) 61px),
+                      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(126, 201, 74, 0.03) 60px, rgba(126, 201, 74, 0.03) 61px);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full transition-colors hover:bg-white/20;
+  }
+}
+
+@keyframes checkDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
